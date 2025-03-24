@@ -3,7 +3,6 @@ from typing import Type, Annotated
 from pydantic import BaseModel, Field, field_validator
 import nmap
 import re
-import json
 
 class ScanNetworkToolSchema(BaseModel):
     """Input for GetInfo Tool."""
@@ -20,7 +19,7 @@ class ScanNetworkToolSchema(BaseModel):
         return value
 
 class ScanNetworkTool(BaseTool):
-    name: str = "Get Info Tool"
+    name: str = "Scan Network Tool"
     description: str = "A tool to scan an IP address using nmap. Example input: {'ip_address': '192.168.1.1'}"
     args_schema: Type[BaseModel] = ScanNetworkToolSchema
 
