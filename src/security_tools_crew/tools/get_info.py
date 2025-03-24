@@ -5,7 +5,7 @@ import nmap
 import re
 import json
 
-class GetInfoToolSchema(BaseModel):
+class ScanNetworkToolSchema(BaseModel):
     """Input for GetInfo Tool."""
     ip_address: Annotated[str, Field(description="IP address to scan (IPv4 format)")] 
 
@@ -19,10 +19,10 @@ class GetInfoToolSchema(BaseModel):
             raise ValueError('Invalid IP address format')
         return value
 
-class GetInfoTool(BaseTool):
+class ScanNetworkTool(BaseTool):
     name: str = "Get Info Tool"
     description: str = "A tool to scan an IP address using nmap. Example input: {'ip_address': '192.168.1.1'}"
-    args_schema: Type[BaseModel] = GetInfoToolSchema
+    args_schema: Type[BaseModel] = ScanNetworkToolSchema
 
     def _run(self, ip_address: str) -> str:
         try:
