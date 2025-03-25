@@ -33,7 +33,7 @@ class SecurityToolsCrew():
             system_template=self.system_template,
             prompt_template=self.prompt_template,
             response_template=self.response_template,
-            tools=[ScanNetworkTool(result_as_answer=True)] # Example of adding a tool to the agent
+            tools=[ScanNetworkTool(result_as_dict=True)] # Example of adding a tool to the agent
         )
 
     # To learn more about structured task outputs,

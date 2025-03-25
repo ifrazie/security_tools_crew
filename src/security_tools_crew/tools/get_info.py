@@ -1,8 +1,9 @@
 from crewai.tools import BaseTool
-from typing import Type, Annotated
+from typing import Type, Annotated, Union, Dict
 from pydantic import BaseModel, Field, field_validator
 import nmap
 import re
+import json
 
 class ScanNetworkToolSchema(BaseModel):
     """Input for GetInfo Tool."""
@@ -22,8 +23,13 @@ class ScanNetworkTool(BaseTool):
     name: str = "Scan Network Tool"
     description: str = "A tool to scan an IP address using nmap. Example input: {'ip_address': '192.168.1.1'}"
     args_schema: Type[BaseModel] = ScanNetworkToolSchema
+    result_as_dict: bool = False
 
-    def _run(self, ip_address: str) -> str:
+    def __init__(self, result_as_dict: bool = False, **kwargs):
+        super().__init__(**kwargs)
+        self.result_as_dict = result_as_dict
+
+    def _run(self, ip_address: str) -> Union[str, Dict]:
         try:
             nm = nmap.PortScanner()
             nm.scan(ip_address, '1-1024', arguments='-sV --version-intensity 5')
@@ -50,7 +56,10 @@ class ScanNetworkTool(BaseTool):
                             "risk_level": "High" if port in [21, 23, 445, 3389] else "Low"
                         })
             
-            # Convert results to formatted string
+            if self.result_as_dict:
+                return results
+            
+            # Convert results to formatted string for agent output
             return f"""Scan Results for {ip_address}:
 Status: {results['status']}
 Total Ports Scanned: {results['scan_info']['total_ports_scanned']}
@@ -60,7 +69,12 @@ Open Ports:
 {self._format_ports(results['scan_info']['ports'])}"""
 
         except Exception as e:
-            return f"Error scanning {ip_address}: {str(e)}"
+            error_result = {
+                "status": "error",
+                "error": str(e),
+                "target": ip_address
+            }
+            return error_result if self.result_as_dict else f"Error scanning {ip_address}: {str(e)}"
 
     def _format_ports(self, ports: list) -> str:
         if not ports:
